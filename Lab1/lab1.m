@@ -1,4 +1,10 @@
+clc;
+clf;
+clear all;
+
 [patterns, targets] = sepdata();
+%[patterns, targets] = nsepdata();
+
 
 [insize, ndata] = size(patterns);
 [outsize, ndata] = size(targets);
@@ -6,7 +12,7 @@
 permute = randperm(200);
 patterns = patterns(:, permute);
 targets = targets(:, permute);
-epoch = 20;
+epoch = 40;
 W = zeros(1,3);
 
 for i = 1:epoch
@@ -23,6 +29,8 @@ for i = 1:epoch
     drawnow;
     axis([-2 2 -2 2],'square')
 end
+
+
 
 %%
 plot (patterns(1, find(targets>0)), ...
