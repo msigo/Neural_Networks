@@ -1,4 +1,6 @@
-function [ w_new,v_new,dw,dv,out ] = backprop(w,v,dw,dv, patterns, targets, ndata, hidden,eta, alpha)
+function [ w_new,v_new,dw,dv,out ] = backprop(w,v,dw,dv, patterns, targets, ndata, hidden)
+    alpha = 0.9;
+    eta = 0.001;
     
     hin = w * [patterns ; ones(1,ndata)];
     hout = [2 ./ (1+exp(-hin)) - 1 ; ones(1,ndata)];
@@ -12,7 +14,7 @@ function [ w_new,v_new,dw,dv,out ] = backprop(w,v,dw,dv, patterns, targets, ndat
     delta_h = delta_h(1:hidden, :);
     
     
-    dw = (dw .* alpha) - (delta_h * [patterns ; ones(1,ndata)]') .* (1-alpha);
+    dw = (dw .* alpha) - (delta_h * patterns') .* (1-alpha);
     dv = (dv .* alpha) - (delta_o * hout') .* (1-alpha);
     
     w_new = w + dw .* eta;  
