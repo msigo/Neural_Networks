@@ -17,7 +17,7 @@ W = zeros(1,3);
 
 
 eta_array = [0.001, 0.1, 1];
-epoch_array = [3, 6, 20];
+epoch_array = [3, 6, 30];
 
 figure(1)
 for i = 1:epoch_array(3)
