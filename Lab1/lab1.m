@@ -16,7 +16,7 @@ epoch = 40;
 W = zeros(1,3);
 
 
-eta_array = [0.001, 0.1, 1];
+eta_array = [0.00001, 0.1, 10];
 epoch_array = [3, 6, 30];
 
 figure(1)
@@ -125,9 +125,10 @@ title('Error');
 
 %% The encoder problem
 
-clc;
-clf;
-clear all;
+%clc;
+%clf;
+%clear all;
+
 
 patterns = eye(8)*2 -1;
 targets = patterns;
@@ -137,6 +138,7 @@ ndata = 8;
 nInputLayers = 8;
 hidden = 3;
 nOutputLayers = 8;
+
 
 W = 2*(rand(hidden,nInputLayers + 1) - 0.5*ones(hidden,nInputLayers +1 ));
 V = 2*(rand(nOutputLayers,hidden+1) - 0.5*ones(nOutputLayers,hidden+1));
@@ -149,13 +151,17 @@ alpha = 0.6;
 
 for i = 1:backprop_epoch
         plot_title = sprintf('Epoch = %f', i);
-              
+
         [W,V,dw,dv,out] = backprop(W,V,dw,dv,patterns,targets,ndata,hidden,eta,alpha);
         error(i) = sum(sum(abs(sign(out)- targets)./2));
 end
-figure(2)
+figure(1)
 plot (error);
 title('Error');
+
+(sign(W) + 1)/2
+
+(sign(V) + 1)/2
 
 
 
@@ -178,37 +184,56 @@ targets = reshape(z,1,ndata);
 [xx,yy] = meshgrid(x,y);
 patterns = [reshape(xx,1,ndata); reshape(yy,1,ndata)];
 
+
+
 nInputLayers = 2;
 hidden = 13;
 nOutputLayers = 1;
 
-W = 2*(rand(hidden,nInputLayers + 1) - 0.5*ones(hidden,nInputLayers +1 ));
-V = 2*(rand(nOutputLayers,hidden+1) - 0.5*ones(nOutputLayers,hidden+1));
-dw = 0;
-dv = 0;
 
-backprop_epoch = 200;
+
+backprop_epoch = 150;
 eta = 0.1;
 alpha = 0.9;
 
-for i = 1:backprop_epoch
-        plot_title = sprintf('Epoch = %f', i);
-              
-        [W,V,dw,dv,out] = backprop(W,V,dw,dv,patterns,targets,ndata,hidden,eta,alpha);
-        
-        figure(2)
-        subplot(1,2,1)
-        zz = reshape(out, gridsize, gridsize);
-        mesh(x,y,zz);
-        axis([-5 5 -5 5 -0.7 0.7]);
-        title('Approximated function')
-        
-        subplot(1,2,2)
-        mesh(x,y,z)
-        axis([-5 5 -5 5 -0.7 0.7]); 
-        title('Target function')
-        
-        drawnow        
+
+
+figure(1)
+subplot(2,3,1)
+mesh(x,y,z)
+axis([-5 5 -5 5 -0.7 0.7]); 
+title('Target function')
+
+hiddens = [2,4,6,9,13];
+
+
+for j = 1:5
+    hidden = hiddens(j)
+    W = 2*(rand(hidden,nInputLayers + 1) - 0.5*ones(hidden,nInputLayers +1 ));
+    V = 2*(rand(nOutputLayers,hidden+1) - 0.5*ones(nOutputLayers,hidden+1));
+    dw = 0;
+    dv = 0;
+    
+  
+    
+    subplot(2,3,j+1)
+    for i = 1:backprop_epoch
+            plot_title = sprintf('Epoch = %f', i);
+
+            [W,V,dw,dv,out] = backprop(W,V,dw,dv,patterns,targets,ndata,hidden,eta,alpha);
+
+
+            %subplot(1,2,1)
+            zz = reshape(out, gridsize, gridsize);
+            mesh(x,y,zz);
+            axis([-5 5 -5 5 -0.7 0.7]);
+            title(sprintf('%.0f nodes, %.0f epochs',hidden, backprop_epoch))
+
+            %subplot(1,2,2)
+
+
+            drawnow        
+    end
 end
 
 %% Generalization 
@@ -222,7 +247,7 @@ n = 10;
 hidden= 30;
 eta = 0.2;
 alpha = 0.9;
-backprop_epoch = 100;
+backprop_epoch = 200;
 
 
 [patterns, targets] = nsepdata(200);
@@ -243,25 +268,189 @@ validationTargets = targets(:,n:end);
 [insize, ndataValidate] = size(validationPatterns);
 [outsize, ndataValidate] = size(validationTargets);
 
-W = 2*(rand(hidden,3) - 0.5*ones(hidden,3));
-V = 2*(rand(1,hidden+1) - 0.5*ones(1,hidden+1));
-dw = 0;
-dv = 0;
 
+hiddens = [2,10,20];
 
-for i = 1:backprop_epoch
-        plot_title = sprintf('Epoch = %f', i);
-              
-        [W,V,dw,dv,out] = backprop(W,V,dw,dv,trainingPatterns,trainingTargets,ndataTrain,hidden,eta,alpha);
-        
-        out = forwardPass(validationPatterns, W,V,ndataValidate);
-        error(i) = sum(sum(abs(sign(out)- validationTargets)./2));
-end
+rng(1);
+
+%set(0,'defaultaxescolororder',[0 0 0; 0.5 0.5 0.5]) %black and gray
+%set(0,'defaultaxeslinestyleorder',{'-+','-o','-*','-.','-x','s','d','^','v','>','<','p','h'})
 figure(1)
-plot (error);
-title('Error');
 
 
+for j = 1:size(hiddens,2);
+    hold on
+    hidden = hiddens(j)
+    W = 2*(rand(hidden,3) - 0.5*ones(hidden,3));
+    V = 2*(rand(1,hidden+1) - 0.5*ones(1,hidden+1));
+    dw = 0;
+    dv = 0;
+
+
+    for i = 1:backprop_epoch
+            plot_title = sprintf('Epoch = %f', i);
+
+            [W,V,dw,dv,out] = backprop(W,V,dw,dv,trainingPatterns,trainingTargets,ndataTrain,hidden,eta,alpha);
+
+            out = forwardPass(validationPatterns, W,V,ndataValidate);
+            error(i) = sum(sum(abs(sign(out)- validationTargets)./2));
+    end
+    subplot(1,2,1)
+    plot (error, 'DisplayName', sprintf('%.f hidden neurons',hiddens(j)));
+    title(sprintf('Number of errors with %.f training sets', n))
+end
+legend('show')
+hold off
+
+
+
+hiddens = [5,15,35];
+n = 25
+trainingPatterns = patterns(:, 1:n);
+trainingTargets = targets(:,1:n);
+validationPatterns = patterns(:,n:end); 
+validationTargets = targets(:,n:end);
+
+[insize, ndataTrain] = size(trainingPatterns);
+[outsize, ndataTrain] = size(trainingTargets);
+
+[insize, ndataValidate] = size(validationPatterns);
+[outsize, ndataValidate] = size(validationTargets);
+
+
+for j = 1:size(hiddens,2);
+    hold on
+    hidden = hiddens(j)
+    W = 2*(rand(hidden,3) - 0.5*ones(hidden,3));
+    V = 2*(rand(1,hidden+1) - 0.5*ones(1,hidden+1));
+    dw = 0;
+    dv = 0;
+
+
+    for i = 1:backprop_epoch
+            plot_title = sprintf('Epoch = %f', i);
+
+            [W,V,dw,dv,out] = backprop(W,V,dw,dv,trainingPatterns,trainingTargets,ndataTrain,hidden,eta,alpha);
+
+            out = forwardPass(validationPatterns, W,V,ndataValidate);
+            error(i) = sum(sum(abs(sign(out)- validationTargets)./2));
+    end
+    subplot(1,2,2)
+    plot (error, 'DisplayName', sprintf('%.f hidden neurons',hiddens(j)));
+    title(sprintf('Number of errors with %.f training sets', n))
+end
+legend('show')
+hold off
+
+
+%%
+
+clc;
+clf;
+clear all;
+
+n = 10;
+hidden= 30;
+eta = 0.2;
+alpha = 0.9;
+backprop_epoch = 200;
+
+
+[patterns, targets] = nsepdata(200);
+permute = randperm(200);
+patterns = patterns(:, permute);
+targets = targets(:, permute);
+
+
+
+trainingPatterns = patterns(:, 1:n);
+trainingTargets = targets(:,1:n);
+validationPatterns = patterns(:,n:end); 
+validationTargets = targets(:,n:end);
+
+[insize, ndataTrain] = size(trainingPatterns);
+[outsize, ndataTrain] = size(trainingTargets);
+
+[insize, ndataValidate] = size(validationPatterns);
+[outsize, ndataValidate] = size(validationTargets);
+
+
+hiddens = 1:1:100;
+
+%rng(1);
+
+%set(0,'defaultaxescolororder',[0 0 0; 0.5 0.5 0.5]) %black and gray
+%set(0,'defaultaxeslinestyleorder',{'-+','-o','-*','-.','-x','s','d','^','v','>','<','p','h'})
+figure(1)
+
+
+for j = 1:size(hiddens,2);
+    hold on
+    hidden = hiddens(j);
+    W = 2*(rand(hidden,3) - 0.5*ones(hidden,3));
+    V = 2*(rand(1,hidden+1) - 0.5*ones(1,hidden+1));
+    dw = 0;
+    dv = 0;
+
+
+    for i = 1:backprop_epoch
+            plot_title = sprintf('Epoch = %f', i);
+
+            [W,V,dw,dv,out] = backprop(W,V,dw,dv,trainingPatterns,trainingTargets,ndataTrain,hidden,eta,alpha);
+
+            out = forwardPass(validationPatterns, W,V,ndataValidate);
+            %error(i) = sum(sum(abs(sign(out)- validationTargets)./2));
+    end
+    error(j) = sum(sum(abs(sign(out)- validationTargets)./2));
+    
+end
+size(error)
+subplot(1,2,1)
+plot (error)
+title(sprintf('Number of errors with %.f training sets', n))
+%legend('show')
+hold off
+
+
+
+
+n = 25
+trainingPatterns = patterns(:, 1:n);
+trainingTargets = targets(:,1:n);
+validationPatterns = patterns(:,n:end); 
+validationTargets = targets(:,n:end);
+
+[insize, ndataTrain] = size(trainingPatterns);
+[outsize, ndataTrain] = size(trainingTargets);
+
+[insize, ndataValidate] = size(validationPatterns);
+[outsize, ndataValidate] = size(validationTargets);
+
+
+for j = 1:size(hiddens,2);
+    hold on
+    hidden = hiddens(j);
+    W = 2*(rand(hidden,3) - 0.5*ones(hidden,3));
+    V = 2*(rand(1,hidden+1) - 0.5*ones(1,hidden+1));
+    dw = 0;
+    dv = 0;
+
+
+    for i = 1:backprop_epoch
+            plot_title = sprintf('Epoch = %f', i);
+
+            [W,V,dw,dv,out] = backprop(W,V,dw,dv,trainingPatterns,trainingTargets,ndataTrain,hidden,eta,alpha);
+
+            out = forwardPass(validationPatterns, W,V,ndataValidate);    
+    end
+    error(j) = sum(sum(abs(sign(out)- validationTargets)./2));
+    
+end
+subplot(1,2,2)
+plot (error)
+title(sprintf('Number of errors with %.f training sets', n))
+%legend('show')
+hold off
 
 
 
