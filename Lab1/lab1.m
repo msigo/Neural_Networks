@@ -211,6 +211,55 @@ for i = 1:backprop_epoch
         drawnow        
 end
 
+%% Generalization 
+
+
+clc;
+clf;
+clear all;
+
+n = 10;
+hidden= 30;
+eta = 0.2;
+alpha = 0.9;
+backprop_epoch = 100;
+
+
+[patterns, targets] = nsepdata(200);
+permute = randperm(200);
+patterns = patterns(:, permute);
+targets = targets(:, permute);
+
+
+
+trainingPatterns = patterns(:, 1:n);
+trainingTargets = targets(:,1:n);
+validationPatterns = patterns(:,n:end); 
+validationTargets = targets(:,n:end);
+
+[insize, ndataTrain] = size(trainingPatterns);
+[outsize, ndataTrain] = size(trainingTargets);
+
+[insize, ndataValidate] = size(validationPatterns);
+[outsize, ndataValidate] = size(validationTargets);
+
+W = 2*(rand(hidden,3) - 0.5*ones(hidden,3));
+V = 2*(rand(1,hidden+1) - 0.5*ones(1,hidden+1));
+dw = 0;
+dv = 0;
+
+
+for i = 1:backprop_epoch
+        plot_title = sprintf('Epoch = %f', i);
+              
+        [W,V,dw,dv,out] = backprop(W,V,dw,dv,trainingPatterns,trainingTargets,ndataTrain,hidden,eta,alpha);
+        
+        out = forwardPass(validationPatterns, W,V,ndataValidate);
+        error(i) = sum(sum(abs(sign(out)- validationTargets)./2));
+end
+figure(1)
+plot (error);
+title('Error');
 
 
 
