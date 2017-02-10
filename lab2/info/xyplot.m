@@ -9,4 +9,5 @@ mserr=sqrt(sum((desired-estimated).^2)/length(desired));
 title([titletext ' :  Mean Sigma Err= ' num2str(mserr)]);
 xlabel('Desired');
 ylabel('Predicted');
+axis([0 1 0 1])
 
