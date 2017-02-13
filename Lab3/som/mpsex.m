@@ -1,6 +1,6 @@
 % Coding: Male 0, Female 1
 
-mpsex = [0
+mpsexs = [0
 	 0
 	 0
 	 0
