@@ -20,8 +20,9 @@ x3d = vm([1 1 1 0 1 1 0 1]);
 
 x_input = [x1d; x2d; x3d];
 x_old = x_input;
-
+ittr = 0;
 while 1
+    ittr = ittr+1
     x_slask = sgn(x_old*W);
    
     if x_slask == x_old
